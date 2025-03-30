@@ -59,55 +59,102 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <h1>My To-Do List באבי אני אוהב אותך הכי הכי</h1>
+    <h1>My To-Do List</h1>
     <input type="text" id="task-input" placeholder="Enter a new task...">
     <button id="add-btn">Add Task</button>
-    <ul id="task-list"></ul>
+    <ul id="task-list">
+        <li class="loading">Loading tasks...</li>
+    </ul>
 
-    <script>
-        // Load tasks from localStorage
-        document.addEventListener('DOMContentLoaded', function() {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const taskList = document.getElementById('task-list');
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, orderBy, serverTimestamp, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
-            tasks.forEach(task => {
-                addTaskToDOM(task);
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDI2q7guziZf-cPRcxlzusr3Iyfzt5s-EI",
+            authDomain: "todo-cf13a.firebaseapp.com",
+            projectId: "todo-cf13a",
+            storageBucket: "todo-cf13a.firebasestorage.app",
+            messagingSenderId: "941968693372",
+            appId: "1:941968693372:web:a1c6e4bbee9b2eb45351f9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // DOM elements
+        const taskInput = document.getElementById('task-input');
+        const addBtn = document.getElementById('add-btn');
+        const taskList = document.getElementById('task-list');
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', loadTasks);
+        addBtn.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        // Load tasks from Firestore (realtime updates)
+        function loadTasks() {
+            const q = query(collection(db, "tasks"), orderBy("createdAt"));
+
+            onSnapshot(q, {
+                next: (snapshot) => {
+                    taskList.innerHTML = ''; // Clear loading message
+
+                    snapshot.forEach((doc) => {
+                        const task = doc.data();
+                        addTaskToDOM(task.text, doc.id);
+                    });
+                },
+                error: (error) => {
+                    console.error("Error loading tasks:", error);
+                    taskList.innerHTML = '<li class="loading">Error loading tasks. Please refresh.</li>';
+                }
             });
-        });
+        }
 
-        // Add task when button is clicked
-        document.getElementById('add-btn').addEventListener('click', addTask);
+        // Add new task to Firestore
+        async function addTask() {
+            const taskText = taskInput.value.trim();
 
-        // Add task when Enter key is pressed
-        document.getElementById('task-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTask();
-            }
-        });
+            if (!taskText) return;
 
-        function addTask() {
-            const input = document.getElementById('task-input');
-            const taskText = input.value.trim();
-
-            if (taskText) {
-                // Add to DOM
-                addTaskToDOM(taskText);
-
-                // Add to localStorage
-                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-                tasks.push(taskText);
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-
-                // Clear input
-                input.value = '';
+            try {
+                await addDoc(collection(db, "tasks"), {
+                    text: taskText,
+                    createdAt: serverTimestamp()
+                });
+                taskInput.value = ''; // Clear input
+            } catch (error) {
+                console.error("Error adding task:", error);
+                alert("Failed to add task. Please try again.");
             }
         }
 
-        function addTaskToDOM(taskText) {
-            const taskList = document.getElementById('task-list');
+        // Delete task from Firestore
+        async function deleteTask(taskId) {
+            try {
+                await deleteDoc(doc(db, "tasks", taskId));
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                alert("Failed to delete task. Please try again.");
+            }
+        }
+
+        // Add task to DOM
+        function addTaskToDOM(taskText, taskId) {
             const li = document.createElement('li');
             li.className = 'task-item';
 
@@ -117,15 +164,7 @@
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.textContent = 'Delete';
-            deleteBtn.addEventListener('click', function() {
-                // Remove from DOM
-                li.remove();
-
-                // Remove from localStorage
-                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-                const updatedTasks = tasks.filter(t => t !== taskText);
-                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-            });
+            deleteBtn.addEventListener('click', () => deleteTask(taskId));
 
             li.appendChild(taskSpan);
             li.appendChild(deleteBtn);
