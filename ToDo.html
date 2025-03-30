@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>My To-Do List</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #task-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #add-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #task-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        .task-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .delete-btn {
+            background-color: #ff3b30;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>My To-Do List</h1>
+    <input type="text" id="task-input" placeholder="Enter a new task...">
+    <button id="add-btn">Add Task</button>
+    <ul id="task-list"></ul>
+
+    <script>
+        // Load tasks from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const taskList = document.getElementById('task-list');
+
+            tasks.forEach(task => {
+                addTaskToDOM(task);
+            });
+        });
+
+        // Add task when button is clicked
+        document.getElementById('add-btn').addEventListener('click', addTask);
+
+        // Add task when Enter key is pressed
+        document.getElementById('task-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const taskText = input.value.trim();
+
+            if (taskText) {
+                // Add to DOM
+                addTaskToDOM(taskText);
+
+                // Add to localStorage
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                tasks.push(taskText);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+
+                // Clear input
+                input.value = '';
+            }
+        }
+
+        function addTaskToDOM(taskText) {
+            const taskList = document.getElementById('task-list');
+            const li = document.createElement('li');
+            li.className = 'task-item';
+
+            const taskSpan = document.createElement('span');
+            taskSpan.textContent = taskText;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', function() {
+                // Remove from DOM
+                li.remove();
+
+                // Remove from localStorage
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                const updatedTasks = tasks.filter(t => t !== taskText);
+                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            });
+
+            li.appendChild(taskSpan);
+            li.appendChild(deleteBtn);
+            taskList.appendChild(li);
+        }
+    </script>
+</body>
+</html>
