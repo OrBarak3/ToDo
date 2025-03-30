@@ -4,53 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>My To-Do List</title>
+    <title>Or & Sapir's Task Manager</title>
     <style>
+        :root {
+            --or-color: #87CEEB;       /* Sky blue */
+            --sapir-color: #FFB6C1;    /* Pink */
+            --mutual-color: #E6E6FA;    /* Lavender */
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         h1 {
             color: #333;
             text-align: center;
+            margin-bottom: 30px;
         }
-        #task-input {
-            width: 100%;
+
+        .section-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .task-section {
+            flex: 1;
+            min-width: 250px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .or-section {
+            border-top: 5px solid var(--or-color);
+        }
+
+        .sapir-section {
+            border-top: 5px solid var(--sapir-color);
+        }
+
+        .mutual-section {
+            border-top: 5px solid var(--mutual-color);
+        }
+
+        .section-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .or-title {
+            color: var(--or-color);
+        }
+
+        .sapir-title {
+            color: var(--sapir-color);
+        }
+
+        .mutual-title {
+            color: var(--mutual-color);
+        }
+
+        .task-input-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .task-input {
+            flex: 1;
             padding: 10px;
-            font-size: 16px;
+            font-size: 14px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-sizing: border-box;
         }
-        #add-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
+
+        .add-btn {
+            margin-left: 10px;
+            padding: 10px 15px;
             background-color: #007AFF;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
         }
-        #task-list {
+
+        .task-list {
             list-style-type: none;
             padding: 0;
-            margin-top: 20px;
+            margin: 0;
         }
+
         .task-item {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+
+        .or-task {
+            background-color: rgba(135, 206, 235, 0.1);
+            border-left: 3px solid var(--or-color);
+        }
+
+        .sapir-task {
+            background-color: rgba(255, 182, 193, 0.1);
+            border-left: 3px solid var(--sapir-color);
+        }
+
+        .mutual-task {
+            background-color: rgba(230, 230, 250, 0.2);
+            border-left: 3px solid var(--mutual-color);
+        }
+
         .delete-btn {
             background-color: #ff3b30;
             color: white;
@@ -58,26 +134,62 @@
             border-radius: 4px;
             padding: 5px 10px;
             cursor: pointer;
+            font-size: 12px;
         }
+
         .loading {
             text-align: center;
             color: #666;
             font-style: italic;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>My To-Do List ביסקי</h1>
-    <input type="text" id="task-input" placeholder="Enter a new task...">
-    <button id="add-btn">Add Task</button>
-    <ul id="task-list">
-        <li class="loading">Loading tasks...</li>
-    </ul>
+    <h1>Or & Sapir's Task Manager</h1>
+
+    <div class="section-container">
+        <!-- Or's Section -->
+        <div class="task-section or-section">
+            <div class="section-title or-title">Or's Tasks</div>
+            <div class="task-input-container">
+                <input type="text" class="task-input" id="or-input" placeholder="Add task for Or...">
+                <button class="add-btn" id="or-add-btn">Add</button>
+            </div>
+            <ul class="task-list" id="or-list">
+                <li class="loading">Loading Or's tasks...</li>
+            </ul>
+        </div>
+
+        <!-- Sapir's Section -->
+        <div class="task-section sapir-section">
+            <div class="section-title sapir-title">Sapir's Tasks</div>
+            <div class="task-input-container">
+                <input type="text" class="task-input" id="sapir-input" placeholder="Add task for Sapir...">
+                <button class="add-btn" id="sapir-add-btn">Add</button>
+            </div>
+            <ul class="task-list" id="sapir-list">
+                <li class="loading">Loading Sapir's tasks...</li>
+            </ul>
+        </div>
+
+        <!-- Mutual Section -->
+        <div class="task-section mutual-section">
+            <div class="section-title mutual-title">Mutual Tasks</div>
+            <div class="task-input-container">
+                <input type="text" class="task-input" id="mutual-input" placeholder="Add mutual task...">
+                <button class="add-btn" id="mutual-add-btn">Add</button>
+            </div>
+            <ul class="task-list" id="mutual-list">
+                <li class="loading">Loading mutual tasks...</li>
+            </ul>
+        </div>
+    </div>
 
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, orderBy, serverTimestamp, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, orderBy, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -94,69 +206,86 @@
         const db = getFirestore(app);
 
         // DOM elements
-        const taskInput = document.getElementById('task-input');
-        const addBtn = document.getElementById('add-btn');
-        const taskList = document.getElementById('task-list');
+        const orInput = document.getElementById('or-input');
+        const sapirInput = document.getElementById('sapir-input');
+        const mutualInput = document.getElementById('mutual-input');
+        const orList = document.getElementById('or-list');
+        const sapirList = document.getElementById('sapir-list');
+        const mutualList = document.getElementById('mutual-list');
 
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', loadTasks);
-        addBtn.addEventListener('click', addTask);
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTask();
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks('or-tasks', orList, 'or-task');
+            loadTasks('sapir-tasks', sapirList, 'sapir-task');
+            loadTasks('mutual-tasks', mutualList, 'mutual-task');
+
+            // Event listeners for add buttons
+            document.getElementById('or-add-btn').addEventListener('click', () => addTask('or-tasks', orInput));
+            document.getElementById('sapir-add-btn').addEventListener('click', () => addTask('sapir-tasks', sapirInput));
+            document.getElementById('mutual-add-btn').addEventListener('click', () => addTask('mutual-tasks', mutualInput));
+
+            // Enter key support
+            orInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('or-tasks', orInput));
+            sapirInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('sapir-tasks', sapirInput));
+            mutualInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('mutual-tasks', mutualInput));
         });
 
-        // Load tasks from Firestore (realtime updates)
-        function loadTasks() {
-            const q = query(collection(db, "tasks"), orderBy("createdAt"));
+        // Load tasks from Firestore
+        function loadTasks(collectionName, listElement, taskClass) {
+            const q = query(collection(db, collectionName), orderBy("createdAt"));
 
             onSnapshot(q, {
                 next: (snapshot) => {
-                    taskList.innerHTML = ''; // Clear loading message
+                    listElement.innerHTML = '';
 
                     snapshot.forEach((doc) => {
                         const task = doc.data();
-                        addTaskToDOM(task.text, doc.id);
+                        addTaskToDOM(listElement, task.text, doc.id, taskClass);
                     });
+
+                    if (snapshot.empty) {
+                        listElement.innerHTML = '<li class="loading">No tasks yet</li>';
+                    }
                 },
                 error: (error) => {
-                    console.error("Error loading tasks:", error);
-                    taskList.innerHTML = '<li class="loading">Error loading tasks. Please refresh.</li>';
+                    console.error(`Error loading ${collectionName}:`, error);
+                    listElement.innerHTML = '<li class="loading">Error loading tasks</li>';
                 }
             });
         }
 
         // Add new task to Firestore
-        async function addTask() {
-            const taskText = taskInput.value.trim();
+        async function addTask(collectionName, inputElement) {
+            const taskText = inputElement.value.trim();
 
             if (!taskText) return;
 
             try {
-                await addDoc(collection(db, "tasks"), {
+                await addDoc(collection(db, collectionName), {
                     text: taskText,
                     createdAt: serverTimestamp()
                 });
-                taskInput.value = ''; // Clear input
+                inputElement.value = '';
             } catch (error) {
-                console.error("Error adding task:", error);
+                console.error(`Error adding to ${collectionName}:`, error);
                 alert("Failed to add task. Please try again.");
             }
         }
 
         // Delete task from Firestore
-        async function deleteTask(taskId) {
+        async function deleteTask(collectionName, taskId) {
             try {
-                await deleteDoc(doc(db, "tasks", taskId));
+                await deleteDoc(doc(db, collectionName, taskId));
             } catch (error) {
-                console.error("Error deleting task:", error);
+                console.error(`Error deleting from ${collectionName}:`, error);
                 alert("Failed to delete task. Please try again.");
             }
         }
 
         // Add task to DOM
-        function addTaskToDOM(taskText, taskId) {
+        function addTaskToDOM(listElement, taskText, taskId, taskClass) {
             const li = document.createElement('li');
-            li.className = 'task-item';
+            li.className = `task-item ${taskClass}`;
 
             const taskSpan = document.createElement('span');
             taskSpan.textContent = taskText;
@@ -164,11 +293,14 @@
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.textContent = 'Delete';
-            deleteBtn.addEventListener('click', () => deleteTask(taskId));
+            deleteBtn.addEventListener('click', () => {
+                const collectionName = listElement.id.replace('-list', '-tasks');
+                deleteTask(collectionName, taskId);
+            });
 
             li.appendChild(taskSpan);
             li.appendChild(deleteBtn);
-            taskList.appendChild(li);
+            listElement.appendChild(li);
         }
     </script>
 </body>
