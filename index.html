@@ -189,7 +189,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, orderBy, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, orderBy, serverTimestamp, deleteDoc, doc, query } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -215,9 +215,12 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
-            loadTasks('or-tasks', orList, 'or-task');
-            loadTasks('sapir-tasks', sapirList, 'sapir-task');
-            loadTasks('mutual-tasks', mutualList, 'mutual-task');
+            // Set timeout to show loading message for at least 1 second
+            setTimeout(() => {
+                loadTasks('or-tasks', orList, 'or-task');
+                loadTasks('sapir-tasks', sapirList, 'sapir-task');
+                loadTasks('mutual-tasks', mutualList, 'mutual-task');
+            }, 1000);
 
             // Event listeners for add buttons
             document.getElementById('or-add-btn').addEventListener('click', () => addTask('or-tasks', orInput));
@@ -232,26 +235,36 @@
 
         // Load tasks from Firestore
         function loadTasks(collectionName, listElement, taskClass) {
-            const q = query(collection(db, collectionName), orderBy("createdAt"));
+            listElement.innerHTML = '<li class="loading">Loading tasks...</li>';
 
-            onSnapshot(q, {
-                next: (snapshot) => {
-                    listElement.innerHTML = '';
+            try {
+                const q = query(collection(db, collectionName), orderBy("createdAt"));
 
-                    snapshot.forEach((doc) => {
-                        const task = doc.data();
-                        addTaskToDOM(listElement, task.text, doc.id, taskClass);
-                    });
+                const unsubscribe = onSnapshot(q,
+                    (snapshot) => {
+                        listElement.innerHTML = '';
 
-                    if (snapshot.empty) {
-                        listElement.innerHTML = '<li class="loading">No tasks yet</li>';
+                        if (snapshot.empty) {
+                            listElement.innerHTML = '<li class="loading">No tasks yet</li>';
+                            return;
+                        }
+
+                        snapshot.forEach((doc) => {
+                            const task = doc.data();
+                            addTaskToDOM(listElement, task.text, doc.id, taskClass);
+                        });
+                    },
+                    (error) => {
+                        console.error(`Error loading ${collectionName}:`, error);
+                        listElement.innerHTML = '<li class="loading">Error loading tasks. Please refresh.</li>';
                     }
-                },
-                error: (error) => {
-                    console.error(`Error loading ${collectionName}:`, error);
-                    listElement.innerHTML = '<li class="loading">Error loading tasks</li>';
-                }
-            });
+                );
+
+                return unsubscribe;
+            } catch (error) {
+                console.error(`Error setting up listener for ${collectionName}:`, error);
+                listElement.innerHTML = '<li class="loading">Connection error</li>';
+            }
         }
 
         // Add new task to Firestore
