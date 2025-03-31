@@ -9,7 +9,8 @@
     :root {
       --or-color: #87ceeb;
       --sapir-color: #ffb6c1;
-      --mutual-color: #e6e6fa;
+      /* Darker lavender for better contrast */
+      --mutual-color: #B19CD9;
       --daily-color: #ffd700;
       --weekly-color: #90ee90;
     }
@@ -146,8 +147,9 @@
       border-left: 3px solid var(--sapir-color);
     }
 
+    /* Darker lavender for better contrast */
     .mutual-task {
-      background-color: rgba(230, 230, 250, 0.2);
+      background-color: rgba(177, 156, 217, 0.2);
       border-left: 3px solid var(--mutual-color);
     }
 
@@ -242,9 +244,19 @@
         <!-- Daily row for Or -->
         <div class="task-input-row" id="or-daily-row" style="display: none;">
           <input type="date" class="date-picker" id="or-date" />
-          <span id="or-time-container">
+          <div id="or-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="or-add-time-btn">Add Time</button>
-          </span>
+            <!-- Hidden by default -->
+            <input
+              type="time"
+              class="time-picker"
+              id="or-time"
+              style="display: none;"
+            />
+            <button class="add-btn" id="or-remove-time-btn" style="display: none;">
+              Remove Time
+            </button>
+          </div>
           <button class="add-btn" id="or-add-btn">Add</button>
         </div>
         <!-- Weekly row for Or -->
@@ -262,7 +274,12 @@
       <div class="section-title sapir-title">Sapir's Tasks</div>
       <div class="task-input-container">
         <div class="task-input-row">
-          <input type="text" class="task-input" id="sapir-input" placeholder="Add task for Sapir..." />
+          <input
+            type="text"
+            class="task-input"
+            id="sapir-input"
+            placeholder="Add task for Sapir..."
+          />
           <select class="task-type-selector" id="sapir-task-type">
             <option value="weekly">Weekly</option>
             <option value="daily">Daily</option>
@@ -271,9 +288,19 @@
         <!-- Daily row for Sapir -->
         <div class="task-input-row" id="sapir-daily-row" style="display: none;">
           <input type="date" class="date-picker" id="sapir-date" />
-          <span id="sapir-time-container">
+          <div id="sapir-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="sapir-add-time-btn">Add Time</button>
-          </span>
+            <!-- Hidden by default -->
+            <input
+              type="time"
+              class="time-picker"
+              id="sapir-time"
+              style="display: none;"
+            />
+            <button class="add-btn" id="sapir-remove-time-btn" style="display: none;">
+              Remove Time
+            </button>
+          </div>
           <button class="add-btn" id="sapir-add-btn">Add</button>
         </div>
         <!-- Weekly row for Sapir -->
@@ -291,7 +318,12 @@
       <div class="section-title mutual-title">Mutual Tasks</div>
       <div class="task-input-container">
         <div class="task-input-row">
-          <input type="text" class="task-input" id="mutual-input" placeholder="Add mutual task..." />
+          <input
+            type="text"
+            class="task-input"
+            id="mutual-input"
+            placeholder="Add mutual task..."
+          />
           <select class="task-type-selector" id="mutual-task-type">
             <option value="weekly">Weekly</option>
             <option value="daily">Daily</option>
@@ -300,9 +332,23 @@
         <!-- Daily row for Mutual -->
         <div class="task-input-row" id="mutual-daily-row" style="display: none;">
           <input type="date" class="date-picker" id="mutual-date" />
-          <span id="mutual-time-container">
+          <div id="mutual-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="mutual-add-time-btn">Add Time</button>
-          </span>
+            <!-- Hidden by default -->
+            <input
+              type="time"
+              class="time-picker"
+              id="mutual-time"
+              style="display: none;"
+            />
+            <button
+              class="add-btn"
+              id="mutual-remove-time-btn"
+              style="display: none;"
+            >
+              Remove Time
+            </button>
+          </div>
           <button class="add-btn" id="mutual-add-btn">Add</button>
         </div>
         <!-- Weekly row for Mutual -->
@@ -370,7 +416,7 @@
     const sapirList = document.getElementById("sapir-list");
     const mutualList = document.getElementById("mutual-list");
 
-    // Toggle input rows based on task type
+    // Toggle the daily/weekly rows
     function toggleDateInput(section) {
       const typeSelector = document.getElementById(`${section}-task-type`);
       const dailyRow = document.getElementById(`${section}-daily-row`);
@@ -385,47 +431,12 @@
       }
     }
 
-    // Replace the "Add Time" button with a time picker input
-    function handleAddTime(section) {
-      const timeContainer = document.getElementById(`${section}-time-container`);
-      const now = new Date();
-      now.setHours(now.getHours() + 1);
-      const timeString = now.toTimeString().substring(0, 5);
-      const timeInput = document.createElement("input");
-      timeInput.type = "time";
-      timeInput.className = "time-picker";
-      timeInput.value = timeString;
-      timeContainer.innerHTML = "";
-      timeContainer.appendChild(timeInput);
-    }
-
-    // Add task based on current type selection
-    function addTaskBasedOnType(section) {
-      const type = document.getElementById(`${section}-task-type`).value;
-      const input = document.getElementById(`${section}-input`);
-      const date = document.getElementById(`${section}-date`).value;
-
-      if (type === "daily") {
-        addTask(`${section}-tasks`, input, date, null, "daily");
-      } else {
-        addTask(`${section}-tasks`, input, null, null, "weekly");
-      }
-    }
-
-    // Format a date string for display
-    function formatDisplayDate(dateString) {
-      if (!dateString) return "No Date";
-      const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    }
-
     // Load tasks from Firestore
     function loadTasks(collectionName, listElement, taskClass) {
       listElement.innerHTML = '<li class="loading">Loading tasks...</li>';
 
       try {
         const q = query(collection(db, collectionName), orderBy("createdAt"));
-
         const unsubscribe = onSnapshot(
           q,
           (snapshot) => {
@@ -464,9 +475,8 @@
     }
 
     // Add a new task to Firestore
-    async function addTask(collectionName, inputElement, date, time, type) {
+    async function addTask(collectionName, inputElement, date, type) {
       const taskText = inputElement.value.trim();
-
       if (!taskText) return;
 
       try {
@@ -476,11 +486,11 @@
           createdAt: serverTimestamp()
         };
 
-        if (type === "daily") {
-          if (date) taskData.date = date;
-          // Get the optional time value if the time-picker was added
+        if (type === "daily" && date) {
+          taskData.date = date;
+          // Check if time input is visible/filled
           const section = collectionName.split("-")[0];
-          const timeInput = document.querySelector(`#${section}-daily-row .time-picker`);
+          const timeInput = document.getElementById(`${section}-time`);
           if (timeInput && timeInput.value) {
             taskData.time = timeInput.value;
           }
@@ -556,57 +566,128 @@
       container.appendChild(li);
     }
 
-    // Initialize the app after the DOM loads
+    // Format a date string for display
+    function formatDisplayDate(dateString) {
+      if (!dateString) return "No Date";
+      const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Helper: sets the time input to the next hour
+    function setNextHour(section) {
+      const now = new Date();
+      now.setHours(now.getHours() + 1);
+      const timeString = now.toTimeString().substring(0, 5);
+      document.getElementById(`${section}-time`).value = timeString;
+    }
+
+    // Initialize after DOM is ready
     document.addEventListener("DOMContentLoaded", () => {
       // Set up task type change listeners
       orTaskType.addEventListener("change", () => toggleDateInput("or"));
       sapirTaskType.addEventListener("change", () => toggleDateInput("sapir"));
       mutualTaskType.addEventListener("change", () => toggleDateInput("mutual"));
 
-      // Set default dates to today
+      // Default dates to today
       const today = new Date().toISOString().split("T")[0];
       orDate.value = today;
       sapirDate.value = today;
       mutualDate.value = today;
 
-      // Event listeners for Add Time buttons in daily rows
-      document.getElementById("or-add-time-btn").addEventListener("click", () => handleAddTime("or"));
-      document.getElementById("sapir-add-time-btn").addEventListener("click", () => handleAddTime("sapir"));
-      document.getElementById("mutual-add-time-btn").addEventListener("click", () => handleAddTime("mutual"));
-
-      // Load tasks after a brief delay
+      // Load tasks
       setTimeout(() => {
         loadTasks("or-tasks", orList, "or-task");
         loadTasks("sapir-tasks", sapirList, "sapir-task");
         loadTasks("mutual-tasks", mutualList, "mutual-task");
       }, 1000);
 
-      // Event listeners for Add buttons (daily and weekly)
+      // "Add" (daily) button
       document.getElementById("or-add-btn").addEventListener("click", () =>
-        addTask("or-tasks", orInput, orDate.value, null, "daily")
+        addTask("or-tasks", orInput, orDate.value, "daily")
       );
       document.getElementById("sapir-add-btn").addEventListener("click", () =>
-        addTask("sapir-tasks", sapirInput, sapirDate.value, null, "daily")
+        addTask("sapir-tasks", sapirInput, sapirDate.value, "daily")
       );
       document.getElementById("mutual-add-btn").addEventListener("click", () =>
-        addTask("mutual-tasks", mutualInput, mutualDate.value, null, "daily")
+        addTask("mutual-tasks", mutualInput, mutualDate.value, "daily")
       );
 
+      // "Add Weekly Task" buttons
       document.getElementById("or-add-weekly-btn").addEventListener("click", () =>
-        addTask("or-tasks", orInput, null, null, "weekly")
+        addTask("or-tasks", orInput, null, "weekly")
       );
       document.getElementById("sapir-add-weekly-btn").addEventListener("click", () =>
-        addTask("sapir-tasks", sapirInput, null, null, "weekly")
+        addTask("sapir-tasks", sapirInput, null, "weekly")
       );
       document.getElementById("mutual-add-weekly-btn").addEventListener("click", () =>
-        addTask("mutual-tasks", mutualInput, null, null, "weekly")
+        addTask("mutual-tasks", mutualInput, null, "weekly")
       );
 
-      // Support adding a task with the Enter key
+      // Enter key support
       orInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("or"));
       sapirInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("sapir"));
       mutualInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("mutual"));
+
+      // Add/Remove Time toggles for Or
+      document.getElementById("or-add-time-btn").addEventListener("click", () => {
+        // Show time input, show "Remove Time", hide "Add Time"
+        setNextHour("or");
+        document.getElementById("or-time").style.display = "block";
+        document.getElementById("or-remove-time-btn").style.display = "inline-block";
+        document.getElementById("or-add-time-btn").style.display = "none";
+      });
+
+      document.getElementById("or-remove-time-btn").addEventListener("click", () => {
+        // Hide time input, hide "Remove Time", show "Add Time", clear time
+        document.getElementById("or-time").style.display = "none";
+        document.getElementById("or-remove-time-btn").style.display = "none";
+        document.getElementById("or-add-time-btn").style.display = "inline-block";
+        document.getElementById("or-time").value = "";
+      });
+
+      // Add/Remove Time toggles for Sapir
+      document.getElementById("sapir-add-time-btn").addEventListener("click", () => {
+        setNextHour("sapir");
+        document.getElementById("sapir-time").style.display = "block";
+        document.getElementById("sapir-remove-time-btn").style.display = "inline-block";
+        document.getElementById("sapir-add-time-btn").style.display = "none";
+      });
+
+      document.getElementById("sapir-remove-time-btn").addEventListener("click", () => {
+        document.getElementById("sapir-time").style.display = "none";
+        document.getElementById("sapir-remove-time-btn").style.display = "none";
+        document.getElementById("sapir-add-time-btn").style.display = "inline-block";
+        document.getElementById("sapir-time").value = "";
+      });
+
+      // Add/Remove Time toggles for Mutual
+      document.getElementById("mutual-add-time-btn").addEventListener("click", () => {
+        setNextHour("mutual");
+        document.getElementById("mutual-time").style.display = "block";
+        document.getElementById("mutual-remove-time-btn").style.display = "inline-block";
+        document.getElementById("mutual-add-time-btn").style.display = "none";
+      });
+
+      document.getElementById("mutual-remove-time-btn").addEventListener("click", () => {
+        document.getElementById("mutual-time").style.display = "none";
+        document.getElementById("mutual-remove-time-btn").style.display = "none";
+        document.getElementById("mutual-add-time-btn").style.display = "inline-block";
+        document.getElementById("mutual-time").value = "";
+      });
     });
+
+    // Add task based on current type selection
+    function addTaskBasedOnType(section) {
+      const type = document.getElementById(`${section}-task-type`).value;
+      const input = document.getElementById(`${section}-input`);
+      const date = document.getElementById(`${section}-date`)?.value;
+
+      if (type === "daily") {
+        addTask(`${section}-tasks`, input, date, "daily");
+      } else {
+        addTask(`${section}-tasks`, input, null, "weekly");
+      }
+    }
   </script>
 </body>
 </html>
