@@ -122,6 +122,28 @@
       font-size: 14px;
     }
 
+    .edit-btn {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+
+    .delete-btn {
+      background-color: #ff3b30;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
     .task-list {
       list-style-type: none;
       padding: 0;
@@ -161,68 +183,28 @@
       border-left: 3px solid var(--weekly-color);
     }
 
+    /* New styling for task details */
     .task-details {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      flex-grow: 1;
     }
 
     .task-text {
       font-weight: 500;
+      display: block;
+      margin-bottom: 5px;
     }
 
     .task-meta {
+      display: inline;
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Container for action buttons */
+    .task-actions {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #666;
-    }
-
-    .task-type {
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    .daily-type {
-      background-color: rgba(255, 215, 0, 0.2);
-      color: #b38f00;
-    }
-
-    .weekly-type {
-      background-color: rgba(144, 238, 144, 0.3);
-      color: #2e8b57;
-    }
-
-    .task-date {
-      font-style: italic;
-      margin-left: 8px;
-    }
-
-    .task-time {
-      font-style: italic;
-      color: #888;
-    }
-
-    .delete-btn {
-      background-color: #ff3b30;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-left: 10px;
-    }
-
-    .loading {
-      text-align: center;
-      color: #666;
-      font-style: italic;
-      padding: 10px;
+      gap: 5px;
     }
   </style>
 </head>
@@ -247,15 +229,8 @@
           <div id="or-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="or-add-time-btn">Add Time</button>
             <!-- Hidden by default -->
-            <input
-              type="time"
-              class="time-picker"
-              id="or-time"
-              style="display: none;"
-            />
-            <button class="add-btn" id="or-remove-time-btn" style="display: none;">
-              Remove Time
-            </button>
+            <input type="time" class="time-picker" id="or-time" style="display: none;" />
+            <button class="add-btn" id="or-remove-time-btn" style="display: none;">Remove Time</button>
           </div>
           <button class="add-btn" id="or-add-btn">Add</button>
         </div>
@@ -274,12 +249,7 @@
       <div class="section-title sapir-title">Sapir's Tasks</div>
       <div class="task-input-container">
         <div class="task-input-row">
-          <input
-            type="text"
-            class="task-input"
-            id="sapir-input"
-            placeholder="Add task for Sapir..."
-          />
+          <input type="text" class="task-input" id="sapir-input" placeholder="Add task for Sapir..." />
           <select class="task-type-selector" id="sapir-task-type">
             <option value="weekly">Weekly</option>
             <option value="daily">Daily</option>
@@ -291,15 +261,8 @@
           <div id="sapir-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="sapir-add-time-btn">Add Time</button>
             <!-- Hidden by default -->
-            <input
-              type="time"
-              class="time-picker"
-              id="sapir-time"
-              style="display: none;"
-            />
-            <button class="add-btn" id="sapir-remove-time-btn" style="display: none;">
-              Remove Time
-            </button>
+            <input type="time" class="time-picker" id="sapir-time" style="display: none;" />
+            <button class="add-btn" id="sapir-remove-time-btn" style="display: none;">Remove Time</button>
           </div>
           <button class="add-btn" id="sapir-add-btn">Add</button>
         </div>
@@ -318,12 +281,7 @@
       <div class="section-title mutual-title">Mutual Tasks</div>
       <div class="task-input-container">
         <div class="task-input-row">
-          <input
-            type="text"
-            class="task-input"
-            id="mutual-input"
-            placeholder="Add mutual task..."
-          />
+          <input type="text" class="task-input" id="mutual-input" placeholder="Add mutual task..." />
           <select class="task-type-selector" id="mutual-task-type">
             <option value="weekly">Weekly</option>
             <option value="daily">Daily</option>
@@ -335,19 +293,8 @@
           <div id="mutual-time-container" style="display: flex; gap: 5px; align-items: center;">
             <button class="add-btn" id="mutual-add-time-btn">Add Time</button>
             <!-- Hidden by default -->
-            <input
-              type="time"
-              class="time-picker"
-              id="mutual-time"
-              style="display: none;"
-            />
-            <button
-              class="add-btn"
-              id="mutual-remove-time-btn"
-              style="display: none;"
-            >
-              Remove Time
-            </button>
+            <input type="time" class="time-picker" id="mutual-time" style="display: none;" />
+            <button class="add-btn" id="mutual-remove-time-btn" style="display: none;">Remove Time</button>
           </div>
           <button class="add-btn" id="mutual-add-btn">Add</button>
         </div>
@@ -363,7 +310,7 @@
   </div>
 
   <script type="module">
-    // Import Firebase modules
+    // Import Firebase modules (including updateDoc for editing tasks)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
     import {
       getFirestore,
@@ -374,7 +321,8 @@
       serverTimestamp,
       deleteDoc,
       doc,
-      query
+      query,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
 
     // Your Firebase configuration
@@ -416,7 +364,7 @@
     const sapirList = document.getElementById("sapir-list");
     const mutualList = document.getElementById("mutual-list");
 
-    // Toggle the daily/weekly rows
+    // Toggle the daily/weekly rows based on task type
     function toggleDateInput(section) {
       const typeSelector = document.getElementById(`${section}-task-type`);
       const dailyRow = document.getElementById(`${section}-daily-row`);
@@ -441,18 +389,16 @@
           q,
           (snapshot) => {
             listElement.innerHTML = "";
-
             if (snapshot.empty) {
               listElement.innerHTML = '<li class="loading">No tasks yet</li>';
               return;
             }
-
-            snapshot.forEach((doc) => {
-              const task = doc.data();
+            snapshot.forEach((docSnap) => {
+              const task = docSnap.data();
               addTaskToDOM(
                 listElement,
                 task.text,
-                doc.id,
+                docSnap.id,
                 taskClass,
                 task.type || "weekly",
                 task.date,
@@ -462,11 +408,9 @@
           },
           (error) => {
             console.error(`Error loading ${collectionName}:`, error);
-            listElement.innerHTML =
-              '<li class="loading">Error loading tasks. Please refresh.</li>';
+            listElement.innerHTML = '<li class="loading">Error loading tasks. Please refresh.</li>';
           }
         );
-
         return unsubscribe;
       } catch (error) {
         console.error(`Error setting up listener for ${collectionName}:`, error);
@@ -514,45 +458,140 @@
       }
     }
 
-    // Add a task to the DOM
+    // Add a task to the DOM with Edit and Delete options.
+    // For daily tasks the type tag and date/time info appear inline.
+    // The Edit mode allows editing the task text as well as the date and time.
     function addTaskToDOM(container, taskText, taskId, taskClass, type, date, time) {
       const li = document.createElement("li");
       li.className = `task-item ${taskClass} ${type}-task`;
 
-      const taskDetails = document.createElement("div");
-      taskDetails.className = "task-details";
+      // Container for task text and meta info
+      const detailsDiv = document.createElement("div");
+      detailsDiv.className = "task-details";
 
-      const taskSpan = document.createElement("span");
-      taskSpan.className = "task-text";
-      taskSpan.textContent = taskText;
+      // Task text span
+      const textSpan = document.createElement("span");
+      textSpan.className = "task-text";
+      textSpan.textContent = taskText;
 
-      const taskMeta = document.createElement("div");
-      taskMeta.className = "task-meta";
+      // Meta info container (type and date/time)
+      const metaDiv = document.createElement("div");
+      metaDiv.className = "task-meta";
 
       const typeSpan = document.createElement("span");
       typeSpan.className = `task-type ${type}-type`;
       typeSpan.textContent = type === "daily" ? "DAILY" : "WEEKLY";
+      metaDiv.appendChild(typeSpan);
 
-      taskMeta.appendChild(typeSpan);
-
-      if (date || time) {
+      if (type === "daily") {
         const dateTimeSpan = document.createElement("span");
         dateTimeSpan.className = "task-date";
-
         if (date && time) {
-          dateTimeSpan.textContent = `${formatDisplayDate(date)} at ${time}`;
+          dateTimeSpan.textContent = ` - ${formatDisplayDate(date)} at ${time}`;
         } else if (date) {
-          dateTimeSpan.textContent = formatDisplayDate(date);
+          dateTimeSpan.textContent = ` - ${formatDisplayDate(date)}`;
         } else if (time) {
-          dateTimeSpan.textContent = `at ${time}`;
+          dateTimeSpan.textContent = ` - at ${time}`;
+        } else {
+          dateTimeSpan.textContent = "";
         }
-
-        taskMeta.appendChild(dateTimeSpan);
+        metaDiv.appendChild(dateTimeSpan);
       }
 
-      taskDetails.appendChild(taskSpan);
-      taskDetails.appendChild(taskMeta);
+      detailsDiv.appendChild(textSpan);
+      detailsDiv.appendChild(metaDiv);
 
+      // Container for action buttons
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "task-actions";
+
+      // Create Edit button
+      const editBtn = document.createElement("button");
+      editBtn.className = "edit-btn";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => {
+        // If in edit mode, the button text is "Save"
+        if (editBtn.textContent === "Edit") {
+          // Enter edit mode:
+          // Replace task text with an input field
+          const editTextInput = document.createElement("input");
+          editTextInput.type = "text";
+          editTextInput.value = textSpan.textContent;
+          editTextInput.className = "task-edit-input";
+          detailsDiv.replaceChild(editTextInput, textSpan);
+
+          // For daily tasks, also enable editing of date and time.
+          if (type === "daily") {
+            const dateTimeSpan = metaDiv.querySelector(".task-date");
+            const dateTimeContainer = document.createElement("div");
+            dateTimeContainer.className = "task-datetime-edit";
+            const dateInput = document.createElement("input");
+            dateInput.type = "date";
+            dateInput.className = "task-date-edit-input";
+            dateInput.value = date || "";
+            const timeInput = document.createElement("input");
+            timeInput.type = "time";
+            timeInput.className = "task-time-edit-input";
+            timeInput.value = time || "";
+            dateTimeContainer.appendChild(dateInput);
+            dateTimeContainer.appendChild(timeInput);
+            metaDiv.replaceChild(dateTimeContainer, dateTimeSpan);
+          }
+          editBtn.textContent = "Save";
+        } else {
+          // Save mode:
+          const newText = detailsDiv.querySelector("input.task-edit-input").value.trim();
+          if (newText === "") {
+            alert("Task text cannot be empty");
+            return;
+          }
+          let newDate = date;
+          let newTime = time;
+          if (type === "daily") {
+            const dateInput = metaDiv.querySelector("input.task-date-edit-input");
+            const timeInput = metaDiv.querySelector("input.task-time-edit-input");
+            newDate = dateInput ? dateInput.value : "";
+            newTime = timeInput ? timeInput.value : "";
+          }
+          const collectionName = container.id.replace("-list", "-tasks");
+          const updateData = { text: newText };
+          if (type === "daily") {
+            updateData.date = newDate;
+            updateData.time = newTime;
+          }
+          updateDoc(doc(db, collectionName, taskId), updateData)
+            .then(() => {
+              // Replace the text input with a span showing the new text
+              const newTextSpan = document.createElement("span");
+              newTextSpan.className = "task-text";
+              newTextSpan.textContent = newText;
+              detailsDiv.replaceChild(newTextSpan, detailsDiv.querySelector("input.task-edit-input"));
+              // Update meta: for daily tasks, replace the date/time container with a span
+              if (type === "daily") {
+                const newDateTimeSpan = document.createElement("span");
+                newDateTimeSpan.className = "task-date";
+                if (newDate && newTime) {
+                  newDateTimeSpan.textContent = ` - ${formatDisplayDate(newDate)} at ${newTime}`;
+                } else if (newDate) {
+                  newDateTimeSpan.textContent = ` - ${formatDisplayDate(newDate)}`;
+                } else if (newTime) {
+                  newDateTimeSpan.textContent = ` - at ${newTime}`;
+                } else {
+                  newDateTimeSpan.textContent = "";
+                }
+                const dtContainer = metaDiv.querySelector(".task-datetime-edit");
+                metaDiv.replaceChild(newDateTimeSpan, dtContainer);
+              }
+              editBtn.textContent = "Edit";
+            })
+            .catch((error) => {
+              console.error("Error updating task:", error);
+              alert("Failed to update task. Please try again.");
+            });
+        }
+      });
+
+      // Create Delete button
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "delete-btn";
       deleteBtn.textContent = "Delete";
@@ -561,12 +600,15 @@
         deleteTask(collectionName, taskId);
       });
 
-      li.appendChild(taskDetails);
-      li.appendChild(deleteBtn);
+      actionsDiv.appendChild(editBtn);
+      actionsDiv.appendChild(deleteBtn);
+
+      li.appendChild(detailsDiv);
+      li.appendChild(actionsDiv);
       container.appendChild(li);
     }
 
-    // Format a date string for display
+    // Format a date string for display (DD/MM/YYYY)
     function formatDisplayDate(dateString) {
       if (!dateString) return "No Date";
       const options = { day: "2-digit", month: "2-digit", year: "numeric" };
@@ -594,14 +636,14 @@
       sapirDate.value = today;
       mutualDate.value = today;
 
-      // Load tasks
+      // Load tasks after a brief delay
       setTimeout(() => {
         loadTasks("or-tasks", orList, "or-task");
         loadTasks("sapir-tasks", sapirList, "sapir-task");
         loadTasks("mutual-tasks", mutualList, "mutual-task");
       }, 1000);
 
-      // "Add" (daily) button
+      // "Add" (daily) button event listeners
       document.getElementById("or-add-btn").addEventListener("click", () =>
         addTask("or-tasks", orInput, orDate.value, "daily")
       );
@@ -612,7 +654,7 @@
         addTask("mutual-tasks", mutualInput, mutualDate.value, "daily")
       );
 
-      // "Add Weekly Task" buttons
+      // "Add Weekly Task" button event listeners
       document.getElementById("or-add-weekly-btn").addEventListener("click", () =>
         addTask("or-tasks", orInput, null, "weekly")
       );
@@ -623,22 +665,19 @@
         addTask("mutual-tasks", mutualInput, null, "weekly")
       );
 
-      // Enter key support
+      // Enter key support for adding tasks
       orInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("or"));
       sapirInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("sapir"));
       mutualInput.addEventListener("keypress", (e) => e.key === "Enter" && addTaskBasedOnType("mutual"));
 
       // Add/Remove Time toggles for Or
       document.getElementById("or-add-time-btn").addEventListener("click", () => {
-        // Show time input, show "Remove Time", hide "Add Time"
         setNextHour("or");
         document.getElementById("or-time").style.display = "block";
         document.getElementById("or-remove-time-btn").style.display = "inline-block";
         document.getElementById("or-add-time-btn").style.display = "none";
       });
-
       document.getElementById("or-remove-time-btn").addEventListener("click", () => {
-        // Hide time input, hide "Remove Time", show "Add Time", clear time
         document.getElementById("or-time").style.display = "none";
         document.getElementById("or-remove-time-btn").style.display = "none";
         document.getElementById("or-add-time-btn").style.display = "inline-block";
@@ -652,7 +691,6 @@
         document.getElementById("sapir-remove-time-btn").style.display = "inline-block";
         document.getElementById("sapir-add-time-btn").style.display = "none";
       });
-
       document.getElementById("sapir-remove-time-btn").addEventListener("click", () => {
         document.getElementById("sapir-time").style.display = "none";
         document.getElementById("sapir-remove-time-btn").style.display = "none";
@@ -667,7 +705,6 @@
         document.getElementById("mutual-remove-time-btn").style.display = "inline-block";
         document.getElementById("mutual-add-time-btn").style.display = "none";
       });
-
       document.getElementById("mutual-remove-time-btn").addEventListener("click", () => {
         document.getElementById("mutual-time").style.display = "none";
         document.getElementById("mutual-remove-time-btn").style.display = "none";
@@ -676,12 +713,11 @@
       });
     });
 
-    // Add task based on current type selection
+    // Add task based on current type selection when Enter key is pressed
     function addTaskBasedOnType(section) {
       const type = document.getElementById(`${section}-task-type`).value;
       const input = document.getElementById(`${section}-input`);
       const date = document.getElementById(`${section}-date`)?.value;
-
       if (type === "daily") {
         addTask(`${section}-tasks`, input, date, "daily");
       } else {
