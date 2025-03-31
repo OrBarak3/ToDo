@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Favicon for all devices -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <meta name="theme-color" content="#5bbad5">
     <title>Or & Sapir's Task Manager</title>
     <style>
         :root {
-            --or-color: #87CEEB;       /* Sky blue */
-            --sapir-color: #FFB6C1;    /* Pink */
-            --mutual-color: #E6E6FA;    /* Lavender */
+            --or-color: #87CEEB;
+            --sapir-color: #FFB6C1;
+            --mutual-color: #E6E6FA;
+            --daily-color: #FFD700;
+            --weekly-color: #90EE90;
         }
 
         body {
@@ -82,7 +78,14 @@
 
         .task-input-container {
             display: flex;
+            flex-direction: column;
+            gap: 10px;
             margin-bottom: 15px;
+        }
+
+        .task-input-row {
+            display: flex;
+            gap: 10px;
         }
 
         .task-input {
@@ -93,14 +96,27 @@
             border-radius: 4px;
         }
 
+        .task-type-selector {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+        }
+
+        .date-picker, .time-picker {
+            padding: 9px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
         .add-btn {
-            margin-left: 10px;
             padding: 10px 15px;
             background-color: #007AFF;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .task-list {
@@ -133,6 +149,60 @@
             border-left: 3px solid var(--mutual-color);
         }
 
+        .daily-task {
+            border-left: 3px solid var(--daily-color);
+        }
+
+        .weekly-task {
+            border-left: 3px solid var(--weekly-color);
+        }
+
+        .task-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .task-text {
+            font-weight: 500;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .task-type {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .daily-type {
+            background-color: rgba(255, 215, 0, 0.2);
+            color: #b38f00;
+        }
+
+        .weekly-type {
+            background-color: rgba(144, 238, 144, 0.3);
+            color: #2e8b57;
+        }
+
+        .task-date {
+            font-style: italic;
+            margin-left: 8px;
+        }
+
+        .task-time {
+            font-style: italic;
+            color: #888;
+        }
+
         .delete-btn {
             background-color: #ff3b30;
             color: white;
@@ -141,6 +211,7 @@
             padding: 5px 10px;
             cursor: pointer;
             font-size: 12px;
+            margin-left: 10px;
         }
 
         .loading {
@@ -152,15 +223,28 @@
     </style>
 </head>
 <body>
-    <h1>Babi And Babi ToDo</h1>
+    <h1>Or & Sapir's Task Manager</h1>
 
     <div class="section-container">
         <!-- Or's Section -->
         <div class="task-section or-section">
             <div class="section-title or-title">Or's Tasks</div>
             <div class="task-input-container">
-                <input type="text" class="task-input" id="or-input" placeholder="Add task for Or...">
-                <button class="add-btn" id="or-add-btn">Add</button>
+                <div class="task-input-row">
+                    <input type="text" class="task-input" id="or-input" placeholder="Add task for Or...">
+                    <select class="task-type-selector" id="or-task-type">
+                        <option value="weekly">Weekly</option>
+                        <option value="daily">Daily</option>
+                    </select>
+                </div>
+                <div class="task-input-row" id="or-date-row" style="display: none;">
+                    <input type="date" class="date-picker" id="or-date">
+                    <input type="time" class="time-picker" id="or-time">
+                    <button class="add-btn" id="or-add-btn">Add</button>
+                </div>
+                <div class="task-input-row" id="or-weekly-row">
+                    <button class="add-btn" id="or-add-weekly-btn">Add Weekly Task</button>
+                </div>
             </div>
             <ul class="task-list" id="or-list">
                 <li class="loading">Loading Or's tasks...</li>
@@ -171,8 +255,21 @@
         <div class="task-section sapir-section">
             <div class="section-title sapir-title">Sapir's Tasks</div>
             <div class="task-input-container">
-                <input type="text" class="task-input" id="sapir-input" placeholder="Add task for Sapir...">
-                <button class="add-btn" id="sapir-add-btn">Add</button>
+                <div class="task-input-row">
+                    <input type="text" class="task-input" id="sapir-input" placeholder="Add task for Sapir...">
+                    <select class="task-type-selector" id="sapir-task-type">
+                        <option value="weekly">Weekly</option>
+                        <option value="daily">Daily</option>
+                    </select>
+                </div>
+                <div class="task-input-row" id="sapir-date-row" style="display: none;">
+                    <input type="date" class="date-picker" id="sapir-date">
+                    <input type="time" class="time-picker" id="sapir-time">
+                    <button class="add-btn" id="sapir-add-btn">Add</button>
+                </div>
+                <div class="task-input-row" id="sapir-weekly-row">
+                    <button class="add-btn" id="sapir-add-weekly-btn">Add Weekly Task</button>
+                </div>
             </div>
             <ul class="task-list" id="sapir-list">
                 <li class="loading">Loading Sapir's tasks...</li>
@@ -183,8 +280,21 @@
         <div class="task-section mutual-section">
             <div class="section-title mutual-title">Mutual Tasks</div>
             <div class="task-input-container">
-                <input type="text" class="task-input" id="mutual-input" placeholder="Add mutual task...">
-                <button class="add-btn" id="mutual-add-btn">Add</button>
+                <div class="task-input-row">
+                    <input type="text" class="task-input" id="mutual-input" placeholder="Add mutual task...">
+                    <select class="task-type-selector" id="mutual-task-type">
+                        <option value="weekly">Weekly</option>
+                        <option value="daily">Daily</option>
+                    </select>
+                </div>
+                <div class="task-input-row" id="mutual-date-row" style="display: none;">
+                    <input type="date" class="date-picker" id="mutual-date">
+                    <input type="time" class="time-picker" id="mutual-time">
+                    <button class="add-btn" id="mutual-add-btn">Add</button>
+                </div>
+                <div class="task-input-row" id="mutual-weekly-row">
+                    <button class="add-btn" id="mutual-add-weekly-btn">Add Weekly Task</button>
+                </div>
             </div>
             <ul class="task-list" id="mutual-list">
                 <li class="loading">Loading mutual tasks...</li>
@@ -215,13 +325,53 @@
         const orInput = document.getElementById('or-input');
         const sapirInput = document.getElementById('sapir-input');
         const mutualInput = document.getElementById('mutual-input');
+
+        const orTaskType = document.getElementById('or-task-type');
+        const sapirTaskType = document.getElementById('sapir-task-type');
+        const mutualTaskType = document.getElementById('mutual-task-type');
+
+        const orDate = document.getElementById('or-date');
+        const sapirDate = document.getElementById('sapir-date');
+        const mutualDate = document.getElementById('mutual-date');
+
+        const orTime = document.getElementById('or-time');
+        const sapirTime = document.getElementById('sapir-time');
+        const mutualTime = document.getElementById('mutual-time');
+
+        const orDateRow = document.getElementById('or-date-row');
+        const sapirDateRow = document.getElementById('sapir-date-row');
+        const mutualDateRow = document.getElementById('mutual-date-row');
+
+        const orWeeklyRow = document.getElementById('or-weekly-row');
+        const sapirWeeklyRow = document.getElementById('sapir-weekly-row');
+        const mutualWeeklyRow = document.getElementById('mutual-weekly-row');
+
         const orList = document.getElementById('or-list');
         const sapirList = document.getElementById('sapir-list');
         const mutualList = document.getElementById('mutual-list');
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
-            // Set timeout to show loading message for at least 1 second
+            // Set up task type change listeners
+            orTaskType.addEventListener('change', () => toggleDateInput('or'));
+            sapirTaskType.addEventListener('change', () => toggleDateInput('sapir'));
+            mutualTaskType.addEventListener('change', () => toggleDateInput('mutual'));
+
+            // Set default dates to today
+            const today = new Date().toISOString().split('T')[0];
+            orDate.value = today;
+            sapirDate.value = today;
+            mutualDate.value = today;
+
+            // Set default time to current hour + 1
+            const now = new Date();
+            const nextHour = new Date(now.setHours(now.getHours() + 1));
+            const timeString = nextHour.toTimeString().substring(0, 5);
+            orTime.value = timeString;
+            sapirTime.value = timeString;
+            mutualTime.value = timeString;
+
+            // Load tasks
             setTimeout(() => {
                 loadTasks('or-tasks', orList, 'or-task');
                 loadTasks('sapir-tasks', sapirList, 'sapir-task');
@@ -229,15 +379,55 @@
             }, 1000);
 
             // Event listeners for add buttons
-            document.getElementById('or-add-btn').addEventListener('click', () => addTask('or-tasks', orInput));
-            document.getElementById('sapir-add-btn').addEventListener('click', () => addTask('sapir-tasks', sapirInput));
-            document.getElementById('mutual-add-btn').addEventListener('click', () => addTask('mutual-tasks', mutualInput));
+            document.getElementById('or-add-btn').addEventListener('click', () => addTask('or-tasks', orInput, orDate.value, orTime.value, 'daily'));
+            document.getElementById('sapir-add-btn').addEventListener('click', () => addTask('sapir-tasks', sapirInput, sapirDate.value, sapirTime.value, 'daily'));
+            document.getElementById('mutual-add-btn').addEventListener('click', () => addTask('mutual-tasks', mutualInput, mutualDate.value, mutualTime.value, 'daily'));
+
+            document.getElementById('or-add-weekly-btn').addEventListener('click', () => addTask('or-tasks', orInput, null, null, 'weekly'));
+            document.getElementById('sapir-add-weekly-btn').addEventListener('click', () => addTask('sapir-tasks', sapirInput, null, null, 'weekly'));
+            document.getElementById('mutual-add-weekly-btn').addEventListener('click', () => addTask('mutual-tasks', mutualInput, null, null, 'weekly'));
 
             // Enter key support
-            orInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('or-tasks', orInput));
-            sapirInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('sapir-tasks', sapirInput));
-            mutualInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTask('mutual-tasks', mutualInput));
+            orInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTaskBasedOnType('or'));
+            sapirInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTaskBasedOnType('sapir'));
+            mutualInput.addEventListener('keypress', (e) => e.key === 'Enter' && addTaskBasedOnType('mutual'));
         });
+
+        // Toggle date input based on task type
+        function toggleDateInput(section) {
+            const typeSelector = document.getElementById(`${section}-task-type`);
+            const dateRow = document.getElementById(`${section}-date-row`);
+            const weeklyRow = document.getElementById(`${section}-weekly-row`);
+
+            if (typeSelector.value === 'daily') {
+                dateRow.style.display = 'flex';
+                weeklyRow.style.display = 'none';
+            } else {
+                dateRow.style.display = 'none';
+                weeklyRow.style.display = 'flex';
+            }
+        }
+
+        // Add task based on current type
+        function addTaskBasedOnType(section) {
+            const type = document.getElementById(`${section}-task-type`).value;
+            const input = document.getElementById(`${section}-input`);
+            const date = document.getElementById(`${section}-date`).value;
+            const time = document.getElementById(`${section}-time`).value;
+
+            if (type === 'daily') {
+                addTask(`${section}-tasks`, input, date, time, 'daily');
+            } else {
+                addTask(`${section}-tasks`, input, null, null, 'weekly');
+            }
+        }
+
+        // Format date for display
+        function formatDisplayDate(dateString) {
+            if (!dateString) return 'No Date';
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
 
         // Load tasks from Firestore
         function loadTasks(collectionName, listElement, taskClass) {
@@ -257,7 +447,15 @@
 
                         snapshot.forEach((doc) => {
                             const task = doc.data();
-                            addTaskToDOM(listElement, task.text, doc.id, taskClass);
+                            addTaskToDOM(
+                                listElement,
+                                task.text,
+                                doc.id,
+                                taskClass,
+                                task.type || 'weekly',
+                                task.date,
+                                task.time
+                            );
                         });
                     },
                     (error) => {
@@ -274,16 +472,24 @@
         }
 
         // Add new task to Firestore
-        async function addTask(collectionName, inputElement) {
+        async function addTask(collectionName, inputElement, date, time, type) {
             const taskText = inputElement.value.trim();
 
             if (!taskText) return;
 
             try {
-                await addDoc(collection(db, collectionName), {
+                const taskData = {
                     text: taskText,
+                    type: type,
                     createdAt: serverTimestamp()
-                });
+                };
+
+                if (type === 'daily') {
+                    if (date) taskData.date = date;
+                    if (time) taskData.time = time;
+                }
+
+                await addDoc(collection(db, collectionName), taskData);
                 inputElement.value = '';
             } catch (error) {
                 console.error(`Error adding to ${collectionName}:`, error);
@@ -302,24 +508,55 @@
         }
 
         // Add task to DOM
-        function addTaskToDOM(listElement, taskText, taskId, taskClass) {
+        function addTaskToDOM(container, taskText, taskId, taskClass, type, date, time) {
             const li = document.createElement('li');
-            li.className = `task-item ${taskClass}`;
+            li.className = `task-item ${taskClass} ${type}-task`;
+
+            const taskDetails = document.createElement('div');
+            taskDetails.className = 'task-details';
 
             const taskSpan = document.createElement('span');
+            taskSpan.className = 'task-text';
             taskSpan.textContent = taskText;
+
+            const taskMeta = document.createElement('div');
+            taskMeta.className = 'task-meta';
+
+            const typeSpan = document.createElement('span');
+            typeSpan.className = `task-type ${type}-type`;
+            typeSpan.textContent = type === 'daily' ? 'DAILY' : 'WEEKLY';
+
+            taskMeta.appendChild(typeSpan);
+
+            if (date || time) {
+                const dateTimeSpan = document.createElement('span');
+                dateTimeSpan.className = 'task-date';
+
+                if (date && time) {
+                    dateTimeSpan.textContent = `${formatDisplayDate(date)} at ${time}`;
+                } else if (date) {
+                    dateTimeSpan.textContent = formatDisplayDate(date);
+                } else if (time) {
+                    dateTimeSpan.textContent = `at ${time}`;
+                }
+
+                taskMeta.appendChild(dateTimeSpan);
+            }
+
+            taskDetails.appendChild(taskSpan);
+            taskDetails.appendChild(taskMeta);
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.textContent = 'Delete';
             deleteBtn.addEventListener('click', () => {
-                const collectionName = listElement.id.replace('-list', '-tasks');
+                const collectionName = container.id.replace('-list', '-tasks');
                 deleteTask(collectionName, taskId);
             });
 
-            li.appendChild(taskSpan);
+            li.appendChild(taskDetails);
             li.appendChild(deleteBtn);
-            listElement.appendChild(li);
+            container.appendChild(li);
         }
     </script>
 </body>
