@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Powered Meeting Insights Platform">
+    <title>Meeting Insights Pro - AI-Powered Analysis</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <h1>Meeting Insights Pro</h1>
+                </div>
+                <nav class="nav-tabs">
+                    <button class="nav-tab active" data-tab="dashboard">
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard
+                    </button>
+                    <button class="nav-tab" data-tab="meetings">
+                        <i class="fas fa-calendar-alt"></i>
+                        Meetings
+                    </button>
+                    <button class="nav-tab" data-tab="insights">
+                        <i class="fas fa-lightbulb"></i>
+                        Insights
+                    </button>
+                    <button class="nav-tab" data-tab="actions">
+                        <i class="fas fa-tasks"></i>
+                        Action Items
+                    </button>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="new-meeting-btn">
+                        <i class="fas fa-plus"></i>
+                        New Meeting
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="dashboard-grid">
+                    <!-- Statistics Cards -->
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-meetings">0</h3>
+                                <p>Total Meetings</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-hours">0h</h3>
+                                <p>Meeting Hours</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="completed-actions">0</h3>
+                                <p>Completed Actions</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="pending-actions">0</h3>
+                                <p>Pending Actions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>Meeting Frequency</h3>
+                            <canvas id="meeting-frequency-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Action Items Progress</h3>
+                            <canvas id="action-progress-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="activity-feed" class="activity-feed">
+                            <!-- Activity items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meetings Tab -->
+            <div id="meetings-tab" class="tab-content">
+                <div class="meetings-header">
+                    <h2>Meeting Management</h2>
+                    <div class="search-filters">
+                        <input type="text" id="meeting-search" placeholder="Search meetings..." class="search-input">
+                        <select id="meeting-filter" class="filter-select">
+                            <option value="all">All Meetings</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="meetings-list" class="meetings-list">
+                    <!-- Meeting items will be populated here -->
+                </div>
+            </div>
+
+            <!-- Insights Tab -->
+            <div id="insights-tab" class="tab-content">
+                <div class="insights-header">
+                    <h2>AI-Powered Insights</h2>
+                    <div class="insight-filters">
+                        <button class="filter-btn active" data-filter="all">All Insights</button>
+                        <button class="filter-btn" data-filter="topics">Key Topics</button>
+                        <button class="filter-btn" data-filter="sentiment">Sentiment</button>
+                        <button class="filter-btn" data-filter="trends">Trends</button>
+                    </div>
+                </div>
+                <div id="insights-content" class="insights-content">
+                    <!-- Insights will be populated here -->
+                </div>
+            </div>
+
+            <!-- Action Items Tab -->
+            <div id="actions-tab" class="tab-content">
+                <div class="actions-header">
+                    <h2>Action Items Tracker</h2>
+                    <div class="actions-controls">
+                        <select id="actions-filter" class="filter-select">
+                            <option value="all">All Actions</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <button class="btn btn-secondary" id="export-actions">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                <div id="actions-list" class="actions-list">
+                    <!-- Action items will be populated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- New Meeting Modal -->
+        <div id="meeting-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add New Meeting</h3>
+                    <button class="close-btn" id="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="meeting-form">
+                        <div class="form-group">
+                            <label for="meeting-title">Meeting Title</label>
+                            <input type="text" id="meeting-title" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="meeting-date">Date</label>
+                                <input type="date" id="meeting-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="meeting-duration">Duration (minutes)</label>
+                                <input type="number" id="meeting-duration" min="1" value="60">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="meeting-participants">Participants</label>
+                            <input type="text" id="meeting-participants" placeholder="Comma-separated names">
+                        </div>
+                        <div class="form-group">
+                            <label for="meeting-transcript">Meeting Transcript/Notes</label>
+                            <textarea id="meeting-transcript" rows="8" placeholder="Paste meeting transcript or notes here..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="auto-analyze">
+                                Auto-analyze for action items and insights
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-meeting">Cancel</button>
+                    <button type="submit" class="btn btn-primary" form="meeting-form">Save Meeting</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Analyzing meeting content...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
