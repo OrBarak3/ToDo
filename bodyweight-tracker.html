@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bodyweight Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="date"],
+        input[type="number"],
+        input[type="text"] {
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #e67e22;
+        }
+
+        .weight-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .weight-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .weight-entry:hover {
+            background-color: #f8f9fa;
+        }
+
+        .weight-entry:last-child {
+            border-bottom: none;
+        }
+
+        .entry-info {
+            flex: 1;
+        }
+
+        .entry-date {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .entry-weight {
+            color: #667eea;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .entry-change {
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .entry-change.positive {
+            color: #e74c3c;
+        }
+
+        .entry-change.negative {
+            color: #27ae60;
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .bmi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .bmi-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bmi-result {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .bmi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bmi-category {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .bmi-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Bodyweight Tracker</h1>
+            <p>Track your fitness journey with precision and style</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="currentWeight">--</div>
+                <div class="stat-label">Current Weight</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalChange">--</div>
+                <div class="stat-label">Total Change</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgWeight">--</div>
+                <div class="stat-label">Average Weight</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalEntries">0</div>
+                <div class="stat-label">Total Entries</div>
+            </div>
+        </div>
+
+        <!-- Add Weight Entry -->
+        <div class="card">
+            <h2>📝 Add Weight Entry</h2>
+            <form id="weightForm" class="form-section">
+                <div class="input-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="input-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" step="0.1" min="0" max="1000" placeholder="70.5" required>
+                </div>
+                <div class="input-group">
+                    <label for="notes">Notes (optional)</label>
+                    <input type="text" id="notes" placeholder="Feeling great today!">
+                </div>
+                <div class="input-group">
+                    <button type="submit" class="btn btn-primary">Add Entry</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- BMI Calculator -->
+        <div class="card">
+            <h2>📊 BMI Calculator</h2>
+            <div class="bmi-section">
+                <div class="bmi-input">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" step="0.1" min="0" max="300" placeholder="175">
+                </div>
+                <div class="bmi-result">
+                    <div class="bmi-value" id="bmiValue">--</div>
+                    <div class="bmi-category" id="bmiCategory">Enter height to calculate BMI</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Chart -->
+        <div class="card">
+            <h2>📈 Weight Progress Chart</h2>
+            <div class="chart-container">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Weight History -->
+        <div class="card">
+            <h2>📋 Weight History</h2>
+            <div class="weight-history" id="weightHistory">
+                <div class="empty-state">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">⚖️</div>
+                    <p>No weight entries yet. Add your first entry above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BodyweightTracker {
+            constructor() {
+                this.weights = this.loadWeights();
+                this.chart = null;
+                this.editingIndex = -1;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setTodayDate();
+                this.updateDisplay();
+                this.loadHeight();
+            }
+
+            setupEventListeners() {
+                document.getElementById('weightForm').addEventListener('submit', (e) => this.handleSubmit(e));
+                document.getElementById('height').addEventListener('input', () => this.calculateBMI());
+                document.getElementById('height').addEventListener('change', () => this.saveHeight());
+            }
+
+            setTodayDate() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('date').value = today;
+            }
+
+            loadWeights() {
+                const stored = localStorage.getItem('bodyweightData');
+                return stored ? JSON.parse(stored) : [];
+            }
+
+            saveWeights() {
+                localStorage.setItem('bodyweightData', JSON.stringify(this.weights));
+            }
+
+            loadHeight() {
+                const stored = localStorage.getItem('userHeight');
+                if (stored) {
+                    document.getElementById('height').value = stored;
+                    this.calculateBMI();
+                }
+            }
+
+            saveHeight() {
+                const height = document.getElementById('height').value;
+                if (height) {
+                    localStorage.setItem('userHeight', height);
+                }
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+                
+                const date = document.getElementById('date').value;
+                const weight = parseFloat(document.getElementById('weight').value);
+                const notes = document.getElementById('notes').value;
+
+                if (!date || !weight) {
+                    alert('Please enter both date and weight');
+                    return;
+                }
+
+                const entry = {
+                    date: date,
+                    weight: weight,
+                    notes: notes,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (this.editingIndex >= 0) {
+                    // Update existing entry
+                    this.weights[this.editingIndex] = entry;
+                    this.editingIndex = -1;
+                    document.querySelector('.btn-primary').textContent = 'Add Entry';
+                } else {
+                    // Add new entry
+                    this.weights.push(entry);
+                }
+
+                // Sort by date (newest first)
+                this.weights.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                this.saveWeights();
+                this.updateDisplay();
+                this.resetForm();
+            }
+
+            resetForm() {
+                document.getElementById('weightForm').reset();
+                this.setTodayDate();
+                this.editingIndex = -1;
+                document.querySelector('.btn-primary').textContent = 'Add Entry';
+            }
+
+            updateDisplay() {
+                this.updateStatistics();
+                this.updateHistory();
+                this.updateChart();
+                this.calculateBMI();
+            }
+
+            updateStatistics() {
+                const currentWeight = document.getElementById('currentWeight');
+                const totalChange = document.getElementById('totalChange');
+                const avgWeight = document.getElementById('avgWeight');
+                const totalEntries = document.getElementById('totalEntries');
+
+                if (this.weights.length === 0) {
+                    currentWeight.textContent = '--';
+                    totalChange.textContent = '--';
+                    avgWeight.textContent = '--';
+                    totalEntries.textContent = '0';
+                    return;
+                }
+
+                // Current weight (most recent entry)
+                const current = this.weights[0].weight;
+                currentWeight.textContent = `${current} kg`;
+
+                // Total change
+                if (this.weights.length > 1) {
+                    const oldest = this.weights[this.weights.length - 1].weight;
+                    const change = current - oldest;
+                    const changeText = change >= 0 ? `+${change.toFixed(1)}` : change.toFixed(1);
+                    totalChange.textContent = `${changeText} kg`;
+                } else {
+                    totalChange.textContent = '0 kg';
+                }
+
+                // Average weight
+                const avg = this.weights.reduce((sum, entry) => sum + entry.weight, 0) / this.weights.length;
+                avgWeight.textContent = `${avg.toFixed(1)} kg`;
+
+                // Total entries
+                totalEntries.textContent = this.weights.length.toString();
+            }
+
+            updateHistory() {
+                const historyContainer = document.getElementById('weightHistory');
+                
+                if (this.weights.length === 0) {
+                    historyContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">⚖️</div>
+                            <p>No weight entries yet. Add your first entry above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyContainer.innerHTML = '';
+                
+                this.weights.forEach((entry, index) => {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'weight-entry';
+                    
+                    // Calculate change from previous entry
+                    let changeText = '';
+                    if (index < this.weights.length - 1) {
+                        const prevWeight = this.weights[index + 1].weight;
+                        const change = entry.weight - prevWeight;
+                        if (change !== 0) {
+                            const changeClass = change > 0 ? 'positive' : 'negative';
+                            const changeSymbol = change > 0 ? '+' : '';
+                            changeText = `<span class="entry-change ${changeClass}">${changeSymbol}${change.toFixed(1)} kg</span>`;
+                        }
+                    }
+
+                    entryDiv.innerHTML = `
+                        <div class="entry-info">
+                            <div class="entry-date">${this.formatDate(entry.date)}</div>
+                            <div class="entry-weight">${entry.weight} kg ${changeText}</div>
+                            ${entry.notes ? `<div style="color: #666; font-size: 0.9rem; margin-top: 4px;">${entry.notes}</div>` : ''}
+                        </div>
+                        <div class="entry-actions">
+                            <button class="btn btn-edit" onclick="tracker.editEntry(${index})">Edit</button>
+                            <button class="btn btn-danger" onclick="tracker.deleteEntry(${index})">Delete</button>
+                        </div>
+                    `;
+                    
+                    historyContainer.appendChild(entryDiv);
+                });
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            editEntry(index) {
+                const entry = this.weights[index];
+                document.getElementById('date').value = entry.date;
+                document.getElementById('weight').value = entry.weight;
+                document.getElementById('notes').value = entry.notes || '';
+                
+                this.editingIndex = index;
+                document.querySelector('.btn-primary').textContent = 'Update Entry';
+                
+                // Scroll to form
+                document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            deleteEntry(index) {
+                if (confirm('Are you sure you want to delete this entry?')) {
+                    this.weights.splice(index, 1);
+                    this.saveWeights();
+                    this.updateDisplay();
+                }
+            }
+
+            updateChart() {
+                const ctx = document.getElementById('weightChart').getContext('2d');
+                
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                if (this.weights.length === 0) {
+                    return;
+                }
+
+                // Sort weights by date for chart (oldest first)
+                const sortedWeights = [...this.weights].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                const labels = sortedWeights.map(entry => this.formatDate(entry.date));
+                const data = sortedWeights.map(entry => entry.weight);
+
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Weight (kg)',
+                            data: data,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' kg';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            }
+
+            calculateBMI() {
+                const height = parseFloat(document.getElementById('height').value);
+                const bmiValue = document.getElementById('bmiValue');
+                const bmiCategory = document.getElementById('bmiCategory');
+
+                if (!height || this.weights.length === 0) {
+                    bmiValue.textContent = '--';
+                    bmiCategory.textContent = height ? 'Add weight entries to calculate BMI' : 'Enter height to calculate BMI';
+                    return;
+                }
+
+                const currentWeight = this.weights[0].weight;
+                const heightInMeters = height / 100;
+                const bmi = currentWeight / (heightInMeters * heightInMeters);
+
+                bmiValue.textContent = bmi.toFixed(1);
+
+                let category = '';
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                } else if (bmi < 25) {
+                    category = 'Normal weight';
+                } else if (bmi < 30) {
+                    category = 'Overweight';
+                } else {
+                    category = 'Obese';
+                }
+
+                bmiCategory.textContent = category;
+            }
+        }
+
+        // Initialize the app
+        const tracker = new BodyweightTracker();
+    </script>
+</body>
+</html>
